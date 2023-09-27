@@ -3,6 +3,7 @@ package com.company.inventory.service;
 import com.company.inventory.dao.ICategoryDao;
 import com.company.inventory.model.Category;
 import com.company.inventory.response.CategoryResponseRest;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -13,6 +14,7 @@ import java.util.List;
 @Service
 public class CategoryServiceImp implements ICategoryService {
 
+    @Autowired
     private final ICategoryDao categoryDao;
 
     public CategoryServiceImp(ICategoryDao categoryDao) {
@@ -21,7 +23,7 @@ public class CategoryServiceImp implements ICategoryService {
 
     @Override
     @Transactional(readOnly = true)
-    public ResponseEntity<CategoryResponseRest> findAll() {
+    public ResponseEntity<CategoryResponseRest> searchAll() {
         CategoryResponseRest response = new CategoryResponseRest();
         try {
             List<Category> category = (List<Category>) categoryDao.findAll();
@@ -30,9 +32,9 @@ public class CategoryServiceImp implements ICategoryService {
         } catch (Exception e) {
             response.setMetadata("ERROR", "99", "Failed");
             e.getStackTrace();
-            return new ResponseEntity<CategoryResponseRest>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
 
         }
-        return new ResponseEntity<CategoryResponseRest>(response, HttpStatus.OK);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }
