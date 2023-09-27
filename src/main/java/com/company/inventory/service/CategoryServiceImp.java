@@ -44,10 +44,10 @@ public class CategoryServiceImp implements ICategoryService {
     @Transactional(readOnly = true)
     public ResponseEntity<CategoryResponseRest> getCategoryById(Long id) {
         CategoryResponseRest response = new CategoryResponseRest();
-        List <Category> list = new ArrayList<>();
+        List<Category> list = new ArrayList<>();
 
         try {
-            Optional <Category> category = categoryDao.findById(id);
+            Optional<Category> category = categoryDao.findById(id);
 
             if (category.isPresent()) {
                 list.add(category.get());
@@ -67,5 +67,23 @@ public class CategoryServiceImp implements ICategoryService {
         }
         return new ResponseEntity<>(response, HttpStatus.OK);
 
+    }
+
+    @Override
+    @Transactional
+    public ResponseEntity<CategoryResponseRest> saveCategory(Category category) {
+        CategoryResponseRest response = new CategoryResponseRest();
+        List<Category> list = new ArrayList<>();
+
+        try {
+            Category categorySave = categoryDao.save(category);
+            response.setMetadata("OK", "00", "Category saved!");
+            list.add(categorySave);
+        } catch (Exception e) {
+            response.setMetadata("ERROR", "99", "Failed to save category");
+            e.getStackTrace();
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }

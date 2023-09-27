@@ -1,5 +1,6 @@
 package com.company.inventory.controller;
 
+import com.company.inventory.model.Category;
 import com.company.inventory.response.CategoryResponseRest;
 import com.company.inventory.service.ICategoryService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,5 +35,17 @@ public class CategoryRestController {
         ResponseEntity<CategoryResponseRest> response = categoryService.getCategoryById(id);
         return response;
     }
+
+    /**
+     * Method to save category
+     * @param id
+     * @return
+     */
+    @PostMapping("/categories/save")
+    public ResponseEntity<CategoryResponseRest> save(@RequestBody Category category){
+        ResponseEntity<CategoryResponseRest> response = categoryService.saveCategory(category);
+        return response;
+    }
+
 
 }
