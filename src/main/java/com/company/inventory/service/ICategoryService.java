@@ -5,5 +5,6 @@ import org.springframework.http.ResponseEntity;
 
 public interface ICategoryService {
     ResponseEntity<CategoryResponseRest> searchAll();
+    ResponseEntity<CategoryResponseRest> getCategoryById(Long id);
 
 }

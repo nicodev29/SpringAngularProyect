@@ -9,7 +9,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class CategoryServiceImp implements ICategoryService {
@@ -32,9 +34,38 @@ public class CategoryServiceImp implements ICategoryService {
         } catch (Exception e) {
             response.setMetadata("ERROR", "99", "Failed");
             e.getStackTrace();
+            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+
+        }
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public ResponseEntity<CategoryResponseRest> getCategoryById(Long id) {
+        CategoryResponseRest response = new CategoryResponseRest();
+        List <Category> list = new ArrayList<>();
+
+        try {
+            Optional <Category> category = categoryDao.findById(id);
+
+            if (category.isPresent()) {
+                list.add(category.get());
+                response.getCategoryResponse().setCategory(list);
+                response.setMetadata("OK", "00", "Category found");
+
+            } else {
+                response.setMetadata("ERROR", "01", "Category not found");
+                return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+            }
+
+        } catch (Exception e) {
+            response.setMetadata("ERROR", "99", "Failed");
+            e.getStackTrace();
             return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
 
         }
         return new ResponseEntity<>(response, HttpStatus.OK);
+
     }
 }
