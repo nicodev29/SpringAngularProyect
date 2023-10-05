@@ -68,7 +68,6 @@ public class CategoryServiceImp implements ICategoryService {
         return new ResponseEntity<>(response, HttpStatus.OK);
 
     }
-
     @Override
     @Transactional
     public ResponseEntity<CategoryResponseRest> saveCategory(Category category) {
@@ -88,7 +87,7 @@ public class CategoryServiceImp implements ICategoryService {
         }
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
-
+    
     @Override
     @Transactional
     public ResponseEntity<CategoryResponseRest> updateCategory(Long id, Category category) {
