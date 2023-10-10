@@ -66,8 +66,8 @@ public class CategoryServiceImp implements ICategoryService {
 
         }
         return new ResponseEntity<>(response, HttpStatus.OK);
-
     }
+
     @Override
     @Transactional
     public ResponseEntity<CategoryResponseRest> saveCategory(Category category) {
@@ -87,7 +87,7 @@ public class CategoryServiceImp implements ICategoryService {
         }
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
-    
+
     @Override
     @Transactional
     public ResponseEntity<CategoryResponseRest> updateCategory(Long id, Category category) {
@@ -137,6 +137,24 @@ public class CategoryServiceImp implements ICategoryService {
             return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public ResponseEntity<CategoryResponseRest> getCategoryByName(String name ) {
+        CategoryResponseRest response = new CategoryResponseRest();
+        List<Category> list = new ArrayList<>();
+
+        try {
+            List<Category> category = categoryDao.findByName(name + "%");
+            response.getCategoryResponse().setCategory(category);
+            response.setMetadata("OK", "00", "Success");
+        } catch (Exception e) {
+            response.setMetadata("ERROR", "99", "Failed");
+            e.getStackTrace();
+            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+        }
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }

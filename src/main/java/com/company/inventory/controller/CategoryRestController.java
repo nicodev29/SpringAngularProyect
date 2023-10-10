@@ -69,5 +69,10 @@ public class CategoryRestController {
         ResponseEntity<CategoryResponseRest> response = categoryService.deleteById(id);
         return response;
     }
+    @GetMapping("/categories/name/{name}")
+    public ResponseEntity<CategoryResponseRest> findByName(@PathVariable String name){
+        ResponseEntity<CategoryResponseRest> response = categoryService.getCategoryByName(name);
+        return response;
+    }
 
 }

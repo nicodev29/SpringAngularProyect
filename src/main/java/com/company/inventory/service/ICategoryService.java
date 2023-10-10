@@ -10,5 +10,6 @@ public interface ICategoryService {
     ResponseEntity<CategoryResponseRest> saveCategory(Category category);
     ResponseEntity<CategoryResponseRest> updateCategory(Long id, Category category);
     ResponseEntity<CategoryResponseRest> deleteById(Long id);
+    ResponseEntity<CategoryResponseRest> getCategoryByName(String name);
 
 }
