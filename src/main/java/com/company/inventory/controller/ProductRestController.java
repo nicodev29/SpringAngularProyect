@@ -42,7 +42,13 @@ public class ProductRestController {
         product.setImage(Util.compressZLib(file.getBytes()));
 
         ResponseEntity<ProductResponseRest> response = productService.saveProduct(product, categoryID);
+        return response;
+    }
 
+    @GetMapping("/products/{id}")
+    public ResponseEntity<ProductResponseRest> getById(@PathVariable("id") Long id) {
+
+        ResponseEntity<ProductResponseRest> response = productService.getProductById(id);
         return response;
     }
 
