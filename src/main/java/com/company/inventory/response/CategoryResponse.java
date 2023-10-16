@@ -7,6 +7,6 @@ import java.util.List;
 
 @Data
 public class CategoryResponse {
-    private List<Category> category;
+    List<Category> category;
 
 }
