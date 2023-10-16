@@ -4,6 +4,7 @@ import com.company.inventory.dao.ICategoryDao;
 import com.company.inventory.dao.IProductDao;
 import com.company.inventory.model.Category;
 import com.company.inventory.model.Product;
+import com.company.inventory.response.CategoryResponseRest;
 import com.company.inventory.response.ProductResponseRest;
 import com.company.inventory.utils.Util;
 import org.springframework.http.HttpStatus;
@@ -16,13 +17,15 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public class ProductServiceImp implements IProductService{
+public class ProductServiceImp implements IProductService {
     private final ICategoryDao categoryDao;
     private final IProductDao productDao;
+
     public ProductServiceImp(ICategoryDao categoryDao, IProductDao productDao) {
         this.categoryDao = categoryDao;
         this.productDao = productDao;
     }
+
     @Override
     @Transactional
     public ResponseEntity<ProductResponseRest> saveProduct(Product product, Long categoriId) {
@@ -65,7 +68,7 @@ public class ProductServiceImp implements IProductService{
 
             if (product.isPresent()) {
 
-                byte [] imageDescompressed = Util.decompressZLib(product.get().getImage());
+                byte[] imageDescompressed = Util.decompressZLib(product.get().getImage());
 
                 product.get().setImage(imageDescompressed);
                 list.add(product.get());
@@ -83,4 +86,65 @@ public class ProductServiceImp implements IProductService{
 
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public ResponseEntity<ProductResponseRest> getProductByName(String name) {
+        ProductResponseRest response = new ProductResponseRest();
+        List<Product> list = new ArrayList<>();
+        List<Product> listAux;
+        try {
+
+            listAux = productDao.findByNameContainingIgnoreCase(name);
+
+            if (listAux.size() > 0 ) {
+
+                listAux.stream().forEach(product -> {
+                    byte[] imageDescompressed = Util.decompressZLib(product.getImage());
+                    product.setImage(imageDescompressed);
+                    list.add(product);
+                });
+
+                response.getProductResponse().setProducts(list);
+                response.setMetadata("OK", "00", "Success");
+
+
+            } else {
+                response.setMetadata("ERROR", "01", "Product not found");
+                return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+            }
+        } catch (Exception e) {
+            e.getStackTrace();
+            response.setMetadata("ERROR", "02", "Server Error");
+        }
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @Override
+    public ResponseEntity<ProductResponseRest> deleteProductById(Long Id) {
+
+        ProductResponseRest response = new ProductResponseRest();
+
+        try {
+            Optional<Product> product = productDao.findById(Id);
+            if (product.isPresent()) {
+
+                byte[] imageDescompressed = Util.decompressZLib(product.get().getImage());
+                product.get().setImage(imageDescompressed);
+                productDao.deleteById(Id);
+                response.setMetadata("OK", "00", "Product found");
+                return new ResponseEntity<>(response, HttpStatus.OK);
+            } else {
+                response.setMetadata("ERROR", "01", "Product not found");
+                return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+            }
+        } catch (Exception e) {
+            e.getStackTrace();
+            response.setMetadata("ERROR", "02", "Server Error");
+        }
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
 }
+

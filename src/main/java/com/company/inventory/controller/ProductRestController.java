@@ -1,6 +1,7 @@
 package com.company.inventory.controller;
 
 import com.company.inventory.model.Product;
+import com.company.inventory.response.CategoryResponseRest;
 import com.company.inventory.response.ProductResponseRest;
 import com.company.inventory.service.IProductService;
 import com.company.inventory.utils.Util;
@@ -49,6 +50,17 @@ public class ProductRestController {
     public ResponseEntity<ProductResponseRest> getById(@PathVariable("id") Long id) {
 
         ResponseEntity<ProductResponseRest> response = productService.getProductById(id);
+        return response;
+    }
+    @GetMapping("/products/name/{name}")
+    public ResponseEntity<ProductResponseRest> findByName(@PathVariable String name){
+        ResponseEntity<ProductResponseRest> response = productService.getProductByName(name);
+        return response;
+    }
+    @DeleteMapping("/products/{id}")
+    public ResponseEntity<ProductResponseRest> deleteById(@PathVariable("id") Long id) {
+
+        ResponseEntity<ProductResponseRest> response = productService.deleteProductById(id);
         return response;
     }
 
