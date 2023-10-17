@@ -4,7 +4,6 @@ import com.company.inventory.dao.ICategoryDao;
 import com.company.inventory.dao.IProductDao;
 import com.company.inventory.model.Category;
 import com.company.inventory.model.Product;
-import com.company.inventory.response.CategoryResponseRest;
 import com.company.inventory.response.ProductResponseRest;
 import com.company.inventory.utils.Util;
 import org.springframework.http.HttpStatus;
@@ -97,7 +96,7 @@ public class ProductServiceImp implements IProductService {
 
             listAux = productDao.findByNameContainingIgnoreCase(name);
 
-            if (listAux.size() > 0 ) {
+            if (!listAux.isEmpty()) {
 
                 listAux.stream().forEach(product -> {
                     byte[] imageDescompressed = Util.decompressZLib(product.getImage());
@@ -122,18 +121,17 @@ public class ProductServiceImp implements IProductService {
     }
 
     @Override
+    @Transactional
     public ResponseEntity<ProductResponseRest> deleteProductById(Long Id) {
 
         ProductResponseRest response = new ProductResponseRest();
 
         try {
             Optional<Product> product = productDao.findById(Id);
-            if (product.isPresent()) {
 
-                byte[] imageDescompressed = Util.decompressZLib(product.get().getImage());
-                product.get().setImage(imageDescompressed);
+            if (product.isPresent()) {
                 productDao.deleteById(Id);
-                response.setMetadata("OK", "00", "Product found");
+                response.setMetadata("OK", "00", "Product Deleted");
                 return new ResponseEntity<>(response, HttpStatus.OK);
             } else {
                 response.setMetadata("ERROR", "01", "Product not found");
@@ -146,5 +144,40 @@ public class ProductServiceImp implements IProductService {
 
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
+
+    @Override
+    public ResponseEntity<ProductResponseRest> getAll() {
+        ProductResponseRest response = new ProductResponseRest();
+
+        List<Product> list = new ArrayList<>();
+        List<Product> listAux;
+        try {
+
+            listAux = (List<Product>) productDao.findAll();
+
+            if (!listAux.isEmpty()) {
+
+                listAux.stream().forEach(product -> {
+                    byte[] imageDescompressed = Util.decompressZLib(product.getImage());
+                    product.setImage(imageDescompressed);
+                    list.add(product);
+                });
+
+                response.getProductResponse().setProducts(list);
+                response.setMetadata("OK", "00", "All products");
+
+
+            } else {
+                response.setMetadata("ERROR", "01", "Products not found");
+                return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+            }
+        } catch (Exception e) {
+            e.getStackTrace();
+            response.setMetadata("ERROR", "02", "Server Error");
+        }
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
 }
 

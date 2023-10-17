@@ -64,5 +64,10 @@ public class ProductRestController {
         return response;
     }
 
+    @GetMapping("/products/all")
+    public ResponseEntity<ProductResponseRest> getAll(){
+        ResponseEntity<ProductResponseRest> response = productService.getAll();
+        return response;
+    }
 }
 
