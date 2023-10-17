@@ -27,13 +27,13 @@ public class ProductServiceImp implements IProductService {
 
     @Override
     @Transactional
-    public ResponseEntity<ProductResponseRest> saveProduct(Product product, Long categoriId) {
+    public ResponseEntity<ProductResponseRest> saveProduct(Product product, Long categoryId) {
 
         ProductResponseRest response = new ProductResponseRest();
         List<Product> list = new ArrayList<>();
 
         try {
-            Optional<Category> category = categoryDao.findById(categoriId);
+            Optional<Category> category = categoryDao.findById(categoryId);
             if (category.isPresent()) {
                 product.setCategory(category.get());
             } else {
@@ -146,11 +146,12 @@ public class ProductServiceImp implements IProductService {
     }
 
     @Override
-    public ResponseEntity<ProductResponseRest> getAll() {
+    public ResponseEntity<ProductResponseRest> findAll() {
         ProductResponseRest response = new ProductResponseRest();
 
         List<Product> list = new ArrayList<>();
         List<Product> listAux;
+
         try {
 
             listAux = (List<Product>) productDao.findAll();
@@ -179,5 +180,48 @@ public class ProductServiceImp implements IProductService {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+    @Override
+    @Transactional
+    public ResponseEntity<ProductResponseRest> updateProduct(Product product, Long categoryId, Long Id) {
+
+        ProductResponseRest response = new ProductResponseRest();
+        List<Product> list = new ArrayList<>();
+
+        try {
+            Optional<Category> category = categoryDao.findById(categoryId);
+            if (category.isPresent()) {
+                   product.setCategory(category.get());
+            } else {
+                response.setMetadata("ERROR", "01", "Category not found");
+                return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+            }
+
+            Optional<Product> productSearch = productDao.findById(Id);
+
+            if (productSearch.isPresent()){
+
+                productSearch.get().setName(product.getName());
+                productSearch.get().setCategory(product.getCategory());
+                productSearch.get().setPrice(product.getPrice());
+                productSearch.get().setQuantity(product.getQuantity());
+                productSearch.get().setImage(product.getImage());
+
+                Product saveProduct = productDao.save(productSearch.get());
+                list.add(saveProduct);
+                response.getProductResponse().setProducts(list);
+                response.setMetadata("OK", "00", "Product updated");
+
+            }else {
+                response.setMetadata("ERROR", "01", "Product not found");
+                return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+            }
+
+
+        } catch (Exception e) {
+            e.getStackTrace();
+            response.setMetadata("ERROR", "02", "Product not updated");
+        }
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
 }
 

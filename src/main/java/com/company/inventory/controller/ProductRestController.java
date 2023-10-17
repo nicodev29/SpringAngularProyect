@@ -1,5 +1,6 @@
 package com.company.inventory.controller;
 
+import com.company.inventory.model.Category;
 import com.company.inventory.model.Product;
 import com.company.inventory.response.CategoryResponseRest;
 import com.company.inventory.response.ProductResponseRest;
@@ -64,10 +65,33 @@ public class ProductRestController {
         return response;
     }
 
-    @GetMapping("/products/all")
-    public ResponseEntity<ProductResponseRest> getAll(){
-        ResponseEntity<ProductResponseRest> response = productService.getAll();
+    @GetMapping("/products")
+    public ResponseEntity<ProductResponseRest> findAll(){
+        ResponseEntity<ProductResponseRest> response = productService.findAll();
         return response;
     }
+
+    @PutMapping("/update/products/{id}")
+    public ResponseEntity<ProductResponseRest> updateProduct(
+
+            @RequestParam("file") MultipartFile file,
+            @RequestParam("name") String name,
+            @RequestParam("price") Double price,
+            @RequestParam("quantity") int quantity,
+            @RequestParam("categoryID") Long categoryID,
+            @PathVariable("id") Long id
+
+    ) throws IOException {
+
+        Product product = new Product();
+        product.setName(name);
+        product.setPrice(price);
+        product.setQuantity(quantity);
+        product.setImage(Util.compressZLib(file.getBytes()));
+
+        ResponseEntity<ProductResponseRest> response = productService.updateProduct(product, categoryID, id);
+        return response;
+    }
+
 }
 

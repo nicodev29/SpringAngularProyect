@@ -12,6 +12,8 @@ public interface IProductService {
     ResponseEntity<ProductResponseRest> getProductById(Long Id);
     ResponseEntity<ProductResponseRest> getProductByName(String name);
     ResponseEntity<ProductResponseRest> deleteProductById(Long Id);
-    ResponseEntity<ProductResponseRest> getAll();
+    ResponseEntity<ProductResponseRest> findAll();
+    ResponseEntity<ProductResponseRest> updateProduct(Product product, Long categoryId, Long Id);
+
 
 }
