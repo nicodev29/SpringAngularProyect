@@ -1,10 +1,11 @@
-package com.company.inventory.service;
+package com.company.inventory.service.imp;
 
 import com.company.inventory.dao.ICategoryDao;
 import com.company.inventory.dao.IProductDao;
 import com.company.inventory.model.Category;
 import com.company.inventory.model.Product;
 import com.company.inventory.response.ProductResponseRest;
+import com.company.inventory.service.IProductService;
 import com.company.inventory.utils.Util;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -183,45 +184,44 @@ public class ProductServiceImp implements IProductService {
     @Override
     @Transactional
     public ResponseEntity<ProductResponseRest> updateProduct(Product product, Long categoryId, Long Id) {
-
         ProductResponseRest response = new ProductResponseRest();
         List<Product> list = new ArrayList<>();
 
         try {
-            Optional<Category> category = categoryDao.findById(categoryId);
-            if (category.isPresent()) {
-                   product.setCategory(category.get());
-            } else {
-                response.setMetadata("ERROR", "01", "Category not found");
-                return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
-            }
+            Category category = categoryDao.findById(categoryId)
+                    .orElseThrow(() -> new RuntimeException("Category not found"));
 
-            Optional<Product> productSearch = productDao.findById(Id);
+            Product existingProduct = productDao.findById(Id)
+                    .orElseThrow(() -> new RuntimeException("Product not found"));
 
-            if (productSearch.isPresent()){
+            updateProductDetails(existingProduct, product);
+            existingProduct.setCategory(category);
 
-                productSearch.get().setName(product.getName());
-                productSearch.get().setCategory(product.getCategory());
-                productSearch.get().setPrice(product.getPrice());
-                productSearch.get().setQuantity(product.getQuantity());
-                productSearch.get().setImage(product.getImage());
+            Product savedProduct = productDao.save(existingProduct);
+            list.add(savedProduct);
 
-                Product saveProduct = productDao.save(productSearch.get());
-                list.add(saveProduct);
-                response.getProductResponse().setProducts(list);
-                response.setMetadata("OK", "00", "Product updated");
+            response.getProductResponse().setProducts(list);
+            response.setMetadata("OK", "00", "Product updated");
+            return new ResponseEntity<>(response, HttpStatus.OK);
 
-            }else {
-                response.setMetadata("ERROR", "01", "Product not found");
-                return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
-            }
-
-
+        } catch (RuntimeException e) {
+            return buildErrorResponse("01", e.getMessage());
         } catch (Exception e) {
-            e.getStackTrace();
-            response.setMetadata("ERROR", "02", "Product not updated");
+            // Consider logging the exception
+            return buildErrorResponse("02", "Product not updated");
         }
-        return new ResponseEntity<>(response, HttpStatus.OK);
     }
+    private void updateProductDetails(Product existingProduct, Product newProductData) {
+        existingProduct.setName(newProductData.getName());
+        existingProduct.setPrice(newProductData.getPrice());
+        existingProduct.setQuantity(newProductData.getQuantity());
+        existingProduct.setImage(newProductData.getImage());
+    }
+    private ResponseEntity<ProductResponseRest> buildErrorResponse(String errorCode, String errorMessage) {
+        ProductResponseRest response = new ProductResponseRest();
+        response.setMetadata("ERROR", errorCode, errorMessage);
+        return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+    }
+
 }
 
