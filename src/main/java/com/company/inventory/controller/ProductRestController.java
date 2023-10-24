@@ -1,8 +1,6 @@
 package com.company.inventory.controller;
 
-import com.company.inventory.model.Category;
 import com.company.inventory.model.Product;
-import com.company.inventory.response.CategoryResponseRest;
 import com.company.inventory.response.ProductResponseRest;
 import com.company.inventory.service.IProductService;
 import com.company.inventory.utils.Util;
