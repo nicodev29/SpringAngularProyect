@@ -4,6 +4,7 @@ import com.company.inventory.dao.ICategoryDao;
 import com.company.inventory.model.Category;
 import com.company.inventory.response.CategoryResponseRest;
 import com.company.inventory.service.ICategoryService;
+import jakarta.persistence.NonUniqueResultException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -77,6 +78,17 @@ public class CategoryServiceImp implements ICategoryService {
         List<Category> list = new ArrayList<>();
 
         try {
+            List<Category> existingCategories = categoryDao.findByName(category.getName());
+            if (!existingCategories.isEmpty()) {
+                response.setMetadata("ERROR", "01", "Category with this name already exists");
+                return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+            }
+        } catch (Exception e) {
+            response.setMetadata("ERROR", "02", "An error occurred while checking for existing categories");
+            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+        }
+
+        try {
             Category categorySave = categoryDao.save(category);
             list.add(categorySave);
             response.setMetadata("OK", "00", "Category saved!");
@@ -88,6 +100,7 @@ public class CategoryServiceImp implements ICategoryService {
         }
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
+
 
     @Override
     @Transactional
@@ -143,19 +156,26 @@ public class CategoryServiceImp implements ICategoryService {
 
     @Override
     @Transactional(readOnly = true)
-    public ResponseEntity<CategoryResponseRest> getCategoryByName(String name ) {
+    public ResponseEntity<CategoryResponseRest> getCategoryByName(String name) {
         CategoryResponseRest response = new CategoryResponseRest();
-        List<Category> list = new ArrayList<>();
+
+        List<Category> categories;
 
         try {
-            List<Category> category = categoryDao.findByName(name + "%");
-            response.getCategoryResponse().setCategory(category);
-            response.setMetadata("OK", "00", "Success");
+            categories = categoryDao.findByName(name);
+            if (!categories.isEmpty()) {
+                response.getCategoryResponse().setCategory(categories);
+                response.setMetadata("OK", "00", "Category found");
+                return new ResponseEntity<>(response, HttpStatus.OK);
+            } else {
+                response.setMetadata("ERROR", "01", "Category not found");
+                return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+            }
         } catch (Exception e) {
             response.setMetadata("ERROR", "99", "Failed");
             e.getStackTrace();
-            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        return new ResponseEntity<>(response, HttpStatus.OK);
     }
+
 }

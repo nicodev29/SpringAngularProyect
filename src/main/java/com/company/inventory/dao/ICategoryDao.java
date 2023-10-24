@@ -9,6 +9,6 @@ import java.util.List;
 
 public interface ICategoryDao extends CrudRepository<Category, Long> {
     @Query("SELECT c FROM Category c WHERE c.name LIKE :name%")
-    List<Category> findByName(@Param("name") String name);
+    List<Category>findByName(@Param("name") String name);
 
 }

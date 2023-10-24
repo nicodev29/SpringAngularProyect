@@ -3,6 +3,7 @@ package com.company.inventory.controller;
 import com.company.inventory.model.Category;
 import com.company.inventory.response.CategoryResponseRest;
 import com.company.inventory.service.ICategoryService;
+import jakarta.persistence.NonUniqueResultException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -42,6 +43,7 @@ public class CategoryRestController {
      * @param category
      * @return
      */
+    @ExceptionHandler(NonUniqueResultException.class)
     @PostMapping("/categories/save")
     public ResponseEntity<CategoryResponseRest> save(@RequestBody Category category){
         ResponseEntity<CategoryResponseRest> response = categoryService.saveCategory(category);
