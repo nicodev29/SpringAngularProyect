@@ -133,20 +133,22 @@ public class ProductServiceImp implements IProductService {
             if (product.isPresent()) {
                 productDao.deleteById(Id);
                 response.setMetadata("OK", "00", "Product Deleted");
-                return new ResponseEntity<>(response, HttpStatus.OK);
             } else {
                 response.setMetadata("ERROR", "01", "Product not found");
                 return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
             }
         } catch (Exception e) {
-            e.getStackTrace();
             response.setMetadata("ERROR", "02", "Server Error");
+            e.getStackTrace();
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
-        return new ResponseEntity<>(response, HttpStatus.OK);
+        return new ResponseEntity<>(response, HttpStatus.OK);  // Esta línea estaba faltante
     }
 
+
     @Override
+    @Transactional(readOnly = true)
     public ResponseEntity<ProductResponseRest> findAll() {
         ProductResponseRest response = new ProductResponseRest();
 
@@ -167,11 +169,10 @@ public class ProductServiceImp implements IProductService {
 
                 response.getProductResponse().setProducts(list);
                 response.setMetadata("OK", "00", "All products");
-
-
             } else {
-                response.setMetadata("ERROR", "01", "Products not found");
-                return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+                response.setMetadata("OK", "00", "No products found");
+                response.getProductResponse().setProducts(new ArrayList<>()); // Lista vacía
+                return new ResponseEntity<>(response, HttpStatus.OK);
             }
         } catch (Exception e) {
             e.getStackTrace();

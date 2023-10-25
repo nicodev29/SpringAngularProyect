@@ -134,10 +134,12 @@ public class CategoryServiceImp implements ICategoryService {
     @Override
     @Transactional
     public ResponseEntity<CategoryResponseRest> deleteById(Long id) {
+
         CategoryResponseRest response = new CategoryResponseRest();
 
         try {
             Optional<Category> categorySearch = categoryDao.findById(id);
+
             if (categorySearch.isPresent()) {
                 categoryDao.deleteById(id);
                 response.setMetadata("OK", "00", "Category deleted!");
